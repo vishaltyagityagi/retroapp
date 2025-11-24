@@ -1,5 +1,8 @@
 # RetroApp
 
+<img width="1901" height="870" alt="Screenshot 2025-11-24 at 1 47 04 PM" src="https://github.com/user-attachments/assets/95c2a66a-d186-4403-bb17-91a7c80ad57c" />
+
+
 RetroApp in Elixir and Phoenix.
 
 To start your Phoenix server:
