@@ -1,0 +1,163 @@
+<div class="h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 font-sans overflow-hidden">
+  <!-- Header -->
+  <header class="flex-none px-6 py-4 border-b border-white/50 bg-white/30 backdrop-blur-md z-10">
+    <div class="max-w-[1920px] mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-lg shadow-indigo-500/20">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-800 tracking-tight"><%= @retro.title %></h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1 bg-white/50 rounded-full text-xs font-medium text-slate-500 border border-slate-200/50">
+          <%= length(@retro.columns) %> Columns
+        </span>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Main Board Area -->
+  <main class="flex-1 min-h-0 p-6 overflow-x-auto">
+    <div class="h-full min-w-[1024px] max-w-[1920px] mx-auto">
+      <div class="grid grid-cols-4 gap-6 h-full">
+        <%= for column <- @retro.columns do %>
+          <div class="flex flex-col h-full bg-slate-100/80 backdrop-blur-sm rounded-2xl border border-white/50 shadow-sm overflow-hidden group/col">
+            <!-- Column Header -->
+            <div class="flex-none px-4 py-3 border-b border-slate-200/50 bg-slate-50/50 flex items-center justify-between">
+              <h2 class="font-bold text-slate-700 flex items-center gap-2">
+                <div class={"w-2.5 h-2.5 rounded-full shadow-sm " <> 
+                  case column.title do
+                    "What went well" -> "bg-emerald-400 shadow-emerald-400/50"
+                    "What went wrong" -> "bg-rose-400 shadow-rose-400/50"
+                    "Shoutouts" -> "bg-amber-400 shadow-amber-400/50"
+                    _ -> "bg-blue-400 shadow-blue-400/50"
+                  end
+                }></div>
+                <%= column.title %>
+              </h2>
+              <span class="bg-white text-slate-500 text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm border border-slate-100">
+                <%= length(column.items) %>
+              </span>
+            </div>
+            
+            <!-- Items List (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400 transition-colors">
+              <%= for item <- column.items do %>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-100 transition-all duration-200 group animate-fade-in-up">
+                  <!-- Item Content -->
+                  <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap mb-3 font-medium"><%= item.content %></p>
+                  
+                  <!-- Actions Bar -->
+                  <div class="flex items-center justify-between pt-3 border-t border-slate-50">
+                    <div class="flex items-center gap-1">
+                      <!-- Vote Button -->
+                      <button phx-click="vote" phx-value-id={item.id} class="flex items-center gap-1.5 px-2 py-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200" title="Like">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                        </svg>
+                        <span class={"text-xs font-bold #{if item.vote_count > 0, do: "text-emerald-600", else: ""}"}><%= item.vote_count %></span>
+                      </button>
+                      
+                      <!-- Dislike Button -->
+                      <button phx-click="dislike" phx-value-id={item.id} class="flex items-center gap-1.5 px-2 py-1 rounded-md text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all duration-200" title="Dislike">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.106-1.79l-.05-.025A4 4 0 0011.057 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.2-1.867a4 4 0 00.8-2.4z" />
+                        </svg>
+                        <span class={"text-xs font-bold #{if item.dislike_count > 0, do: "text-rose-500", else: ""}"}><%= item.dislike_count %></span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Action Items Section -->
+                  <div class="mt-3 pt-2 border-t border-slate-50">
+                    <div class="flex items-center gap-2 mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                      </svg>
+                      <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Action Items</h4>
+                    </div>
+                    
+                    <ul class="space-y-1.5 mb-2">
+                      <%= for action <- item.action_items do %>
+                        <li class="flex items-start gap-2 text-xs text-slate-600 group/item">
+                          <div class={"mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 #{if action.completed, do: "bg-slate-300", else: "bg-blue-400"}"}></div>
+                          <span class={if action.completed, do: "line-through text-slate-400", else: ""}><%= action.content %></span>
+                        </li>
+                      <% end %>
+                    </ul>
+                    
+                    <form phx-submit="save_action_item" class="relative group/form">
+                      <input type="hidden" name="action_item[item_id]" value={item.id} />
+                      <input type="text" name="action_item[content]" placeholder="Add action item..." required 
+                        class="w-full text-xs bg-slate-50 border-none rounded-md py-1.5 pl-2 pr-8 focus:ring-1 focus:ring-blue-200 placeholder-slate-400 text-slate-700 transition-all" />
+                      <button type="submit" class="absolute right-1 top-1/2 -translate-y-1/2 text-slate-300 hover:text-blue-600 p-0.5 opacity-0 group-hover/form:opacity-100 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                      </button>
+                    </form>
+                  </div>
+
+                  <!-- Replies Section -->
+                  <div class="mt-3 pt-2 border-t border-slate-50">
+                     <div class="flex items-center gap-2 mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd" />
+                      </svg>
+                      <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Replies</h4>
+                    </div>
+
+                    <div class="space-y-2 mb-2">
+                      <%= for reply <- item.replies do %>
+                        <div class="text-xs text-slate-600 bg-slate-50 px-2.5 py-2 rounded-lg border border-slate-100/50 shadow-sm">
+                          <%= reply.content %>
+                        </div>
+                      <% end %>
+                    </div>
+                    
+                    <form phx-submit="save_reply" class="relative group/form">
+                      <input type="hidden" name="reply[item_id]" value={item.id} />
+                      <input type="text" name="reply[content]" placeholder="Write a reply..." required 
+                        class="w-full text-xs bg-slate-50 border-none rounded-md py-1.5 pl-2 pr-8 focus:ring-1 focus:ring-slate-200 placeholder-slate-400 text-slate-700 transition-all" />
+                      <button type="submit" class="absolute right-1 top-1/2 -translate-y-1/2 text-slate-300 hover:text-blue-600 p-0.5 opacity-0 group-hover/form:opacity-100 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                        </svg>
+                      </button>
+                    </form>
+                  </div>
+
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Add Item Form -->
+            <div class="flex-none p-3 bg-slate-50 border-t border-slate-200/60 rounded-b-2xl">
+              <form phx-submit="save">
+                <input type="hidden" name="item[column_id]" value={column.id} />
+                <input type="hidden" name="item[vote_count]" value="0" />
+                <div class="relative">
+                  <textarea 
+                    name="item[content]" 
+                    id={"item-input-#{column.id}"}
+                    placeholder="Type & Enter..." 
+                    required 
+                    phx-hook="SubmitOnEnter"
+                    class="w-full text-sm bg-white border border-slate-200 rounded-xl py-3 pl-4 pr-12 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none resize-none transition-all shadow-sm placeholder-slate-400 min-h-[46px]" 
+                    rows="1"></textarea>
+                  <button type="submit" class="absolute top-1/2 -translate-y-1/2 right-2 bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md hover:scale-105 active:scale-95 transform flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </main>
+</div>
